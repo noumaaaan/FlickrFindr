@@ -15,6 +15,7 @@
 		2ABB379C25D87C2500C3B2A6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2ABB379A25D87C2500C3B2A6 /* LaunchScreen.storyboard */; };
 		2ABB37A725D87C2500C3B2A6 /* FlickrFinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ABB37A625D87C2500C3B2A6 /* FlickrFinderTests.swift */; };
 		2ABB37B225D87C2500C3B2A6 /* FlickrFinderUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ABB37B125D87C2500C3B2A6 /* FlickrFinderUITests.swift */; };
+		2ABB37C625DA299600C3B2A6 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ABB37C525DA299600C3B2A6 /* AppConfig.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 		2ABB37AD25D87C2500C3B2A6 /* FlickrFinderUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlickrFinderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2ABB37B125D87C2500C3B2A6 /* FlickrFinderUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrFinderUITests.swift; sourceTree = "<group>"; };
 		2ABB37B325D87C2500C3B2A6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2ABB37C525DA299600C3B2A6 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +104,7 @@
 				2ABB378F25D87C2400C3B2A6 /* AppDelegate.swift */,
 				2ABB379125D87C2400C3B2A6 /* SceneDelegate.swift */,
 				2ABB379325D87C2400C3B2A6 /* ViewController.swift */,
+				2ABB37C525DA299600C3B2A6 /* AppConfig.swift */,
 				2ABB379525D87C2400C3B2A6 /* Main.storyboard */,
 				2ABB379825D87C2500C3B2A6 /* Assets.xcassets */,
 				2ABB379A25D87C2500C3B2A6 /* LaunchScreen.storyboard */,
@@ -259,6 +262,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2ABB379425D87C2400C3B2A6 /* ViewController.swift in Sources */,
+				2ABB37C625DA299600C3B2A6 /* AppConfig.swift in Sources */,
 				2ABB379025D87C2400C3B2A6 /* AppDelegate.swift in Sources */,
 				2ABB379225D87C2400C3B2A6 /* SceneDelegate.swift in Sources */,
 			);
