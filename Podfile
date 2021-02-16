@@ -6,6 +6,8 @@ target 'FlickrFinder' do
   use_frameworks!
 
   # Pods for FlickrFinder
+  platform :ios, '8.0'
+  pod 'SDWebImage', '~> 5.0'
 
   target 'FlickrFinderTests' do
     inherit! :search_paths
@@ -15,5 +17,6 @@ target 'FlickrFinder' do
   target 'FlickrFinderUITests' do
     # Pods for testing
   end
-
+  
+  
 end

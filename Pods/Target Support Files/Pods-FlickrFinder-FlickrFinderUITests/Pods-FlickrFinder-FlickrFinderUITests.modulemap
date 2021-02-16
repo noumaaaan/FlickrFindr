@@ -1,0 +1,6 @@
+framework module Pods_FlickrFinder_FlickrFinderUITests {
+  umbrella header "Pods-FlickrFinder-FlickrFinderUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}
