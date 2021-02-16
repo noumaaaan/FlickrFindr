@@ -8,6 +8,8 @@ target 'FlickrFinder' do
   # Pods for FlickrFinder
   platform :ios, '8.0'
   pod 'SDWebImage', '~> 5.0'
+  pod 'ImageViewer.swift', '~> 3.0'
+  pod 'ImageViewer.swift/Fetcher', '~> 3.0'
 
   target 'FlickrFinderTests' do
     inherit! :search_paths

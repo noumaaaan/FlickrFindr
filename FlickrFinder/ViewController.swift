@@ -21,21 +21,29 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     override func viewDidLoad() {
         formatInputs(text: searchTextField, button: searchButton)
-        self.hideKeyboardWhenTappedAround()
         collectionView.delegate = self
         collectionView.dataSource = self
         self.urls = [String]()
-    }
-    
-    // Get response when search button pressed
-    @IBAction func searchButtonTapped(_ sender: Any) {
-        self.collectionView.reloadData()
-        self.getResponse(tags: searchTextField.text!)
+        self.hideKeyboardWhenTappedAround()
     }
     
     // Minimise keyboard on return
     @IBAction func returnTapped(_ sender: UITextField) {
         sender.resignFirstResponder()
+    }
+
+    @IBAction func searchButtonTapped(_ sender: Any) {
+        // Do nothing if nothing is searched
+        if (searchTextField.text!.isReallyEmpty){
+            return
+        } else {
+            // if the urls array is not empty, clear the view then search
+            if (!urls!.isEmpty){
+                urls!.removeAll()
+                self.collectionView.reloadData()
+            }
+            self.getResponse(tags: searchTextField.text!)
+        }
     }
     
     // Format inputs
@@ -69,7 +77,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     // Function to get all images for a given search
     func getResponse(tags: String){
-        let formatted = tags.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: " ", with: "%2C+")
+        let formatted = tags.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: " ", with: "+").replacingOccurrences(of: ",", with: "%2C+")
         let url = config.searchUrl + config.apiKey + "&tags=" + formatted + config.endUrl
         print(url)
         let task = URLSession.shared.dataTask(with: URL(string: url)!, completionHandler: { (data, response, error) in
@@ -79,16 +87,26 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             } else if let data = data {
                 do {
                     let result = try JSONDecoder().decode(Response.self, from: data)
+                    print(result)
                     if (result.stat == "ok"){
-                        for urls in result.photos!.photo {
-                            DispatchQueue.main.async {
-                                GetImageInfo().getURLImages(photoId: urls.id) { [weak self] imageURLs in
-                                    guard let self = self else { return }
-                                    self.urls?.append(imageURLs)
-                                    self.collectionView.reloadData()
+                        if (result.photos!.photo.count > 1){
+                            for urls in result.photos!.photo {
+                                DispatchQueue.main.async {
+                                    GetImageInfo().getURLImages(photoId: urls.id) { [weak self] imageURLs in
+                                        guard let self = self else { return }
+                                        self.urls?.append(imageURLs)
+                                        self.collectionView.reloadData()
+                                    }
                                 }
                             }
+                        } else {
+                            DispatchQueue.main.async {
+                                self.displayAlertMessage(userTitle: "Error", userMessage: "No results found for: " + tags, alertAction: "Return")
+                                return
+                            }
                         }
+                    } else {
+                        print(result)
                     }
                 } catch {
                     print(error)
@@ -139,6 +157,14 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             alpha: CGFloat(1.0)
         )
     }
+    
+    // Function to display an alert message parameters for the title, message and action type
+    func displayAlertMessage(userTitle: String, userMessage:String, alertAction:String){
+        let theAlert = UIAlertController(title: userTitle, message: userMessage, preferredStyle: UIAlertController.Style.alert)
+        let okAction = UIAlertAction(title: alertAction, style:UIAlertAction.Style.default, handler: nil)
+        theAlert.addAction(okAction)
+        self.present(theAlert, animated: true, completion: nil)
+    }
 }
 
 // https://stackoverflow.com/questions/24126678/close-ios-keyboard-by-touching-anywhere-using-swift
@@ -150,5 +176,12 @@ extension UIViewController {
     }
     @objc func dismissKeyboard() {
         view.endEditing(true)
+    }
+}
+
+// https://stackoverflow.com/questions/37533058/how-to-check-if-a-textfieldview-is-empty-or-has-no-spaces
+extension String {
+    var isReallyEmpty: Bool {
+        return self.trimmingCharacters(in: .whitespaces).isEmpty
     }
 }
