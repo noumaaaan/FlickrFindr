@@ -28,7 +28,7 @@
                                 </connections>
                             </textField>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="xsT-Bv-k18">
-                                <rect key="frame" x="0.0" y="143" width="414" height="753"/>
+                                <rect key="frame" x="0.0" y="172" width="414" height="724"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="HTN-bd-E0H">
@@ -66,6 +66,13 @@
                                     <action selector="searchButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="wa2-jc-0Nf"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="A2m-gl-Ct5">
+                                <rect key="frame" x="20" y="143" width="374" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -73,6 +80,7 @@
                     <navigationItem key="navigationItem" title="FlickrFindr" id="J8u-cf-sCb"/>
                     <connections>
                         <outlet property="collectionView" destination="xsT-Bv-k18" id="wc6-ZK-4n2"/>
+                        <outlet property="pageLabel" destination="A2m-gl-Ct5" id="Uck-xm-PkG"/>
                         <outlet property="searchButton" destination="FuH-h0-8h5" id="lga-z4-pL4"/>
                         <outlet property="searchTextField" destination="NSx-ug-b8P" id="I0s-pE-056"/>
                     </connections>

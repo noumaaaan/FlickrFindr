@@ -7,7 +7,7 @@
 
 import UIKit
 
-class GetImageInfo: UIViewController {
+class GetImageInfo {
     
     struct Response: Codable {
         var sizes: sizeInfo?
@@ -24,7 +24,6 @@ class GetImageInfo: UIViewController {
     
     // Function to return the URL for the searched images
     func getURLImages(photoId: String, completion: @escaping (String) -> Void) {
-        
         let url = config.getImageInfo + config.apiKey + "&photo_id=" + photoId + config.endUrl
         let task = URLSession.shared.dataTask(with: URL(string: url)!, completionHandler: { (data, response, error) in
             if let error = error {

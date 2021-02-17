@@ -14,11 +14,16 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var searchTextField: UITextField!
     @IBOutlet weak var searchButton: UIButton!
+    @IBOutlet weak var pageLabel: UILabel!
     
     let config = AppConfig()
     let getInfo = GetImageInfo()
     var urls: [String]?
-    
+    var temp: String?
+    var page: Int = 1
+    var totalPages: Int?
+    var isFetching = false
+
     override func viewDidLoad() {
         formatInputs(text: searchTextField, button: searchButton)
         collectionView.delegate = self
@@ -26,28 +31,30 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         self.urls = [String]()
         self.hideKeyboardWhenTappedAround()
     }
-    
-    // Minimise keyboard on return
-    @IBAction func returnTapped(_ sender: UITextField) {
-        sender.resignFirstResponder()
-    }
 
     @IBAction func searchButtonTapped(_ sender: Any) {
         // Do nothing if nothing is searched
         if (searchTextField.text!.isReallyEmpty){
             return
+            
+        // If search term is same as previous, do nothing
+        } else if (searchTextField.text == temp){
+            return
+            
+        // if the urls array is not empty, clear the view then search
         } else {
-            // if the urls array is not empty, clear the view then search
             if (!urls!.isEmpty){
                 urls!.removeAll()
                 self.collectionView.reloadData()
             }
-            self.getResponse(tags: searchTextField.text!)
+            temp = searchTextField.text
+            self.getResponse(tags: searchTextField.text!, pageParam: 1)
         }
     }
     
     // Format inputs
     func formatInputs(text: UITextField, button: UIButton){
+        pageLabel.text = ""
         text.keyboardType = .alphabet
         text.autocorrectionType = .no
         text.backgroundColor = hexStringToUIColor(hex: "#fef5f1")
@@ -76,10 +83,16 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     }
     
     // Function to get all images for a given search
-    func getResponse(tags: String){
+    func getResponse(tags: String, pageParam: Int){
+        isFetching = true
         let formatted = tags.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: " ", with: "+").replacingOccurrences(of: ",", with: "%2C+")
-        let url = config.searchUrl + config.apiKey + "&tags=" + formatted + config.endUrl
-        print(url)
+        
+        var url = config.searchUrl + config.apiKey + "&tags=" + formatted + config.endUrl
+        if (pageParam != 1){
+            let newPage = String(self.page)
+            url = config.searchUrl + config.apiKey + "&tags=" + formatted + "&page=" + newPage + config.endUrl
+        }
+        
         let task = URLSession.shared.dataTask(with: URL(string: url)!, completionHandler: { (data, response, error) in
             if let error = error {
                 print(error)
@@ -87,9 +100,13 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             } else if let data = data {
                 do {
                     let result = try JSONDecoder().decode(Response.self, from: data)
-                    print(result)
                     if (result.stat == "ok"){
+                        DispatchQueue.main.async {
+                            self.updatePageLabelText(label: self.pageLabel, p: result.photos!.page, tp: result.photos!.pages, total: result.photos!.total)
+                        }
+
                         if (result.photos!.photo.count > 1){
+                            self.isFetching = true
                             for urls in result.photos!.photo {
                                 DispatchQueue.main.async {
                                     GetImageInfo().getURLImages(photoId: urls.id) { [weak self] imageURLs in
@@ -99,6 +116,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                                     }
                                 }
                             }
+                            self.isFetching = false
                         } else {
                             DispatchQueue.main.async {
                                 self.displayAlertMessage(userTitle: "Error", userMessage: "No results found for: " + tags, alertAction: "Return")
@@ -117,6 +135,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        print(urls!.count)
         return urls!.count
     }
     
@@ -137,6 +156,33 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
            let collectionViewSize = collectionView.frame.size.width - padding
            return CGSize(width: collectionViewSize/2, height: collectionViewSize/2)
     }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard isFetching == false else {
+            return
+        }
+        if (scrollView.contentOffset.y + 1) >= (scrollView.contentSize.height - scrollView.frame.size.height) {
+            self.getResponse(tags: searchTextField.text!, pageParam: page + 1)
+        }
+    }
+    
+    // Return label text
+    func updatePageLabelText(label: UILabel, p: Int, tp: Int, total: String){
+        label.text = "Page " + String(p) + " out of " + String(tp) + ", " + total + " results"
+    }
+    
+    // Function to display an alert message parameters for the title, message and action type
+    func displayAlertMessage(userTitle: String, userMessage:String, alertAction:String){
+        let theAlert = UIAlertController(title: userTitle, message: userMessage, preferredStyle: UIAlertController.Style.alert)
+        let okAction = UIAlertAction(title: alertAction, style:UIAlertAction.Style.default, handler: nil)
+        theAlert.addAction(okAction)
+        self.present(theAlert, animated: true, completion: nil)
+    }
+    
+    // Minimise keyboard on return
+    @IBAction func returnTapped(_ sender: UITextField) {
+        sender.resignFirstResponder()
+    }
     
     // https://stackoverflow.com/questions/24263007/how-to-use-hex-color-values
     func hexStringToUIColor (hex:String) -> UIColor {
@@ -156,14 +202,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
             alpha: CGFloat(1.0)
         )
-    }
-    
-    // Function to display an alert message parameters for the title, message and action type
-    func displayAlertMessage(userTitle: String, userMessage:String, alertAction:String){
-        let theAlert = UIAlertController(title: userTitle, message: userMessage, preferredStyle: UIAlertController.Style.alert)
-        let okAction = UIAlertAction(title: alertAction, style:UIAlertAction.Style.default, handler: nil)
-        theAlert.addAction(okAction)
-        self.present(theAlert, animated: true, completion: nil)
     }
 }
 
