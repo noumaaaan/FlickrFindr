@@ -151,7 +151,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             let space: CGFloat = (flowayout?.minimumInteritemSpacing ?? 0.0) + (flowayout?.sectionInset.left ?? 0.0) + (flowayout?.sectionInset.right ?? 0.0)
         let size:CGFloat = (collectionView.frame.size.width - space) / 2.0
             return CGSize(width: size, height: size)
-        }
+    }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard isFetching == false else {

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -164,7 +164,6 @@
 				070B057E14AA474B8C0B3CBD /* Pods-FlickrFinderTests.debug.xcconfig */,
 				6689E1DD00DE0DF0755600C1 /* Pods-FlickrFinderTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
