@@ -14,7 +14,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var searchTextField: UITextField!
     @IBOutlet weak var searchButton: UIButton!
-    @IBOutlet weak var pageLabel: UILabel!
     
     let config = AppConfig()
     let getInfo = GetImageInfo()
@@ -23,6 +22,22 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     var page: Int = 1
     var totalPages: Int?
     var isFetching = false
+    
+    // JSON STRUCT
+    struct Response: Codable {
+        let photos: PagedImageResult?
+        let stat: String
+    }
+    struct PagedImageResult: Codable {
+        let photo : [FlickrURLs]
+        let page: Int
+        let pages: Int
+        let perpage: Int
+        let total: String
+    }
+    struct FlickrURLs: Codable {
+        let id : String
+    }
 
     override func viewDidLoad() {
         formatInputs(text: searchTextField, button: searchButton)
@@ -30,6 +45,10 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         collectionView.dataSource = self
         self.urls = [String]()
         self.hideKeyboardWhenTappedAround()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
     }
 
     @IBAction func searchButtonTapped(_ sender: Any) {
@@ -54,7 +73,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     // Format inputs
     func formatInputs(text: UITextField, button: UIButton){
-        pageLabel.text = ""
         text.keyboardType = .alphabet
         text.autocorrectionType = .no
         text.backgroundColor = hexStringToUIColor(hex: "#fef5f1")
@@ -62,24 +80,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         button.backgroundColor = hexStringToUIColor(hex: "#b23a48")
         button.setTitleColor(hexStringToUIColor(hex: "#fed0bb"), for: .normal)
         button.layer.cornerRadius = 5
-        button.layer.borderWidth = 2
-        button.layer.borderColor = UIColor(red:139/255.0, green:157/255.0, blue:195/255.0, alpha: 1.0).cgColor
-    }
-    
-    // JSON STRUCT
-    struct Response: Codable {
-        let photos: PagedImageResult?
-        let stat: String
-    }
-    struct PagedImageResult: Codable {
-        let photo : [FlickrURLs]
-        let page: Int
-        let pages: Int
-        let perpage: Int
-        let total: String
-    }
-    struct FlickrURLs: Codable {
-        let id : String
+        button.layer.borderWidth = 1
     }
     
     // Function to get all images for a given search
@@ -101,10 +102,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                 do {
                     let result = try JSONDecoder().decode(Response.self, from: data)
                     if (result.stat == "ok"){
-                        DispatchQueue.main.async {
-                            self.updatePageLabelText(label: self.pageLabel, p: result.photos!.page, tp: result.photos!.pages, total: result.photos!.total)
-                        }
-
                         if (result.photos!.photo.count > 1){
                             self.isFetching = true
                             for urls in result.photos!.photo {
@@ -135,13 +132,11 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print(urls!.count)
         return urls!.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! CollectionViewCell
-        
         cell.imageView.image = nil
         cell.imageView.sd_setImage(with: URL(string: String(urls![indexPath.row])), placeholderImage: nil, options: [.progressiveLoad])
         return cell
@@ -152,10 +147,11 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-           let padding: CGFloat =  10
-           let collectionViewSize = collectionView.frame.size.width - padding
-           return CGSize(width: collectionViewSize/2, height: collectionViewSize/2)
-    }
+            let flowayout = collectionViewLayout as? UICollectionViewFlowLayout
+            let space: CGFloat = (flowayout?.minimumInteritemSpacing ?? 0.0) + (flowayout?.sectionInset.left ?? 0.0) + (flowayout?.sectionInset.right ?? 0.0)
+        let size:CGFloat = (collectionView.frame.size.width - space) / 2.0
+            return CGSize(width: size, height: size)
+        }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard isFetching == false else {
@@ -164,11 +160,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         if (scrollView.contentOffset.y + 1) >= (scrollView.contentSize.height - scrollView.frame.size.height) {
             self.getResponse(tags: searchTextField.text!, pageParam: page + 1)
         }
-    }
-    
-    // Return label text
-    func updatePageLabelText(label: UILabel, p: Int, tp: Int, total: String){
-        label.text = "Page " + String(p) + " out of " + String(tp) + ", " + total + " results"
     }
     
     // Function to display an alert message parameters for the title, message and action type
